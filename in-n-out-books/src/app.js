@@ -4,102 +4,70 @@
 // Description: In-N-Out-Books server setup with Express
 const express = require('express');
 const app = express();
-const books = require('../database/books');
-const users = require('../database/users');
-const bcrypt = require('bcryptjs');
-
-// Middleware
 app.use(express.json());
 
-// GET: Return all books
+let books = [
+    { id: 1, title: 'Book One' },
+    { id: 2, title: 'Book Two' }
+];
+
+let users = [
+    { email: 'test@example.com', password: 'password123' }
+];
+
+// GET all books
 app.get('/api/books', (req, res) => {
-    try {
-        res.json(books);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    res.status(200).json(books);
 });
 
-// GET: Return a single book by ID
+// GET a single book by ID
 app.get('/api/books/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id, 10);
-        if (isNaN(id)) return res.status(400).json({ message: 'Invalid book ID' });
-
-        const book = books.find(b => b.id === id);
-        if (!book) return res.status(404).json({ message: 'Book not found' });
-
-        res.json(book);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    const book = books.find(b => b.id === parseInt(req.params.id));
+    if (!book) return res.status(400).json({});
+    res.status(200).json(book);
 });
 
-// POST: Add a new book
+// POST create a new book
 app.post('/api/books', (req, res) => {
-    try {
-        const { title } = req.body;
-        if (!title) return res.status(400).json({ message: 'Book title is required' });
+    const { title } = req.body;
+    if (!title) return res.status(400).json({ message: 'Title is required' });
 
-        const newBook = { id: books.length + 1, title };
-        books.push(newBook);
-
-        res.status(201).json(newBook);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    const newBook = { id: books.length + 1, title };
+    books.push(newBook);
+    res.status(201).json(newBook);
 });
 
-// PUT: Update a book
+// PUT update a book by ID
 app.put('/api/books/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id, 10);
-        if (isNaN(id)) return res.status(400).json({ message: 'Invalid book ID' });
+    const { title } = req.body;
+    const book = books.find(b => b.id === parseInt(req.params.id));
 
-        const { title } = req.body;
-        if (!title) return res.status(400).json({ message: 'Book title is required' });
+    if (!book) return res.status(400).json({});
+    if (!title) return res.status(400).json({ message: 'Title is required' });
 
-        const bookIndex = books.findIndex(b => b.id === id);
-        if (bookIndex === -1) return res.status(404).json({ message: 'Book not found' });
-
-        books[bookIndex].title = title;
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    book.title = title;
+    res.status(204).send();
 });
 
-// DELETE: Remove a book
+// DELETE a book by ID
 app.delete('/api/books/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id, 10);
-        if (isNaN(id)) return res.status(400).json({ message: 'Invalid book ID' });
+    const bookIndex = books.findIndex(b => b.id === parseInt(req.params.id));
+    if (bookIndex === -1) return res.status(400).json({});
 
-        const bookIndex = books.findIndex(b => b.id === id);
-        if (bookIndex === -1) return res.status(404).json({ message: 'Book not found' });
-
-        books.splice(bookIndex, 1);
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    books.splice(bookIndex, 1);
+    res.status(204).send();
 });
 
-// POST: User login
+// POST login a user
 app.post('/api/login', (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 
-        const user = users.find(u => u.email === email);
-        if (!user || !bcrypt.compareSync(password, user.password)) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
+    const user = users.find(u => u.email === email && u.password === password);
+    if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-        res.status(200).json({ message: 'Authentication successful' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    res.status(200).json({ message: 'Authentication successful' });
 });
 
 module.exports = app;
+
