@@ -1,6 +1,11 @@
+// test/app.spec.js
 const request = require('supertest');
 const app = require('../src/app');
+const bcrypt = require('bcryptjs');
+
 describe('In-N-Out-Books API', () => {
+
+    // Books API Tests
     it('should return an array of books', async () => {
         const response = await request(app).get('/api/books');
         expect(response.status).toBe(200);
@@ -14,9 +19,10 @@ describe('In-N-Out-Books API', () => {
         expect(response.body).toHaveProperty('title');
     });
 
-    it('should return 400 for invalid book ID', async () => {
-        const response = await request(app).get('/api/books/999');
+    it('should return 400 for an invalid book ID', async () => {
+        const response = await request(app).get('/api/books/999'); // Make sure 999 is indeed an invalid ID in your mock data
         expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', 'Invalid book ID');
     });
 
     it('should create a new book', async () => {
@@ -25,9 +31,10 @@ describe('In-N-Out-Books API', () => {
         expect(response.body).toHaveProperty('title', 'New Book');
     });
 
-    it('should return 400 if title is missing', async () => {
+    it('should return 400 if title is missing when creating a book', async () => {
         const response = await request(app).post('/api/books').send({});
         expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', 'Title is required');
     });
 
     it('should update a book', async () => {
@@ -35,9 +42,10 @@ describe('In-N-Out-Books API', () => {
         expect(response.status).toBe(204);
     });
 
-    it('should return 400 if title is missing in update', async () => {
+    it('should return 400 if title is missing in book update', async () => {
         const response = await request(app).put('/api/books/1').send({});
         expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', 'Title is required for update');
     });
 
     it('should delete a book', async () => {
@@ -45,6 +53,7 @@ describe('In-N-Out-Books API', () => {
         expect(response.status).toBe(204);
     });
 
+    // User Authentication API Tests
     it('should log in a user with correct credentials', async () => {
         const response = await request(app).post('/api/login').send({
             email: 'test@example.com',
@@ -63,10 +72,9 @@ describe('In-N-Out-Books API', () => {
         expect(response.body.message).toBe('Unauthorized');
     });
 
-    it('should return 400 if email or password is missing', async () => {
+    it('should return 400 if email or password is missing during login', async () => {
         const response = await request(app).post('/api/login').send({});
         expect(response.status).toBe(400);
+        expect(response.body).toHaveProperty('message', 'Email and password are required');
     });
 });
-
-
