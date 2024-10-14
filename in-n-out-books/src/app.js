@@ -40,6 +40,11 @@ const securityQuestionSchema = {
     }
 };
 
+// Define the root route
+app.get('/', (req, res) => {
+    res.send('Welcome to the In-N-Out-Books API!'); // Landing page message
+});
+
 // GET all books
 app.get('/api/books', (req, res) => {
     return res.status(200).json(books);
