@@ -2,14 +2,14 @@
   "name": "in-n-out-books",
   "version": "1.0.0",
   "description": "In-N-Out-Books API",
-  "main": "app.js",
+  "main": "src/app.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "jest",
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "author": "Professor Krasso",
   "license": "MIT",
